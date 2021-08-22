@@ -35,7 +35,7 @@ def desktop_login(number):
     f.write(ufr.content)
     f.close()
     with ZipFile(r"телеграммы\telegram.zip", 'r') as zip_ref:
-        zip_ref.extractall(rf"{getcwd()}\телеграммы")
+        zip_ref.extractall(rf"телеграммы")
     rename(rf"телеграммы\Telegram",
            rf"телеграммы\{number}")
     print('login to desktop')
@@ -125,7 +125,7 @@ def sms_man(country):
     except KeyError as error:
         logger.warning(error)
         return False
-    number = get_number_json['number']
+    number = '+' + get_number_json['number']
     print(number)
     client = TelegramClient(number, API_ID, API_HASH)
     try:
