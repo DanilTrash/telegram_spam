@@ -32,3 +32,8 @@ def countries():
 
 def applications():
     return requests.get(f'{URL}/applications?token={TOKEN}').json()
+
+
+if __name__ == '__main__':
+    for i in countries():
+        print(i)

@@ -7,8 +7,8 @@ from requests import get
 from telethon.errors.rpcerrorlist import *
 from telethon.sync import TelegramClient
 from time import sleep
-from tg_reg.onlinesim_api import OnlineSim
-from tg_reg import sms_man_api
+from onlinesim_api import OnlineSim
+import sms_man_api
 
 config = ConfigParser()
 config.read("config.ini")

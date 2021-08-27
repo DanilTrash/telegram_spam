@@ -65,7 +65,7 @@ logger.setLevel(logging.INFO)
 consoleHandler = logging.StreamHandler()
 consoleHandler.setLevel(logging.INFO)
 
-fileHandler = logging.FileHandler('log.log')
+fileHandler = logging.FileHandler('log.log', 'w')
 fileHandler.setLevel(logging.WARNING)
 formatter = logging.Formatter('%(asctime)s  %(name)s  %(levelname)s: %(message)s')
 fileHandler.setFormatter(formatter)
