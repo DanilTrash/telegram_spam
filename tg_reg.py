@@ -1,7 +1,6 @@
 import logging
-import os
 from configparser import ConfigParser
-from os import rename, startfile, getcwd
+from os import rename, startfile
 from random import choice
 from zipfile import ZipFile
 from requests import get
@@ -10,23 +9,14 @@ from telethon.sync import TelegramClient
 from time import sleep
 from onlinesim_api import OnlineSim
 import sms_man_api
+from logger import logger
 
 config = ConfigParser()
 config.read(f"config.ini")
-API_ID = int(config["config"]["api_id"])
-API_HASH = config["config"]["api_hash"]
-
+API_ID = int(config["telegram"]["tg_api_id"])
+API_HASH = config["telegram"]["tg_api_hash"]
+LOGGER = logger('tg_reg', file='tg_reg.log')
 name = str(choice(open('names').read().splitlines()))
-logger = logging.getLogger('main')
-consolehandler = logging.StreamHandler()
-fileHandler = logging.FileHandler('log.log')
-logger.addHandler(fileHandler)
-logger.addHandler(consolehandler)
-formatter = logging.Formatter('%(asctime)s ~ %(name)s ~ %(levelname)s: %(message)s')
-fileHandler.setFormatter(formatter)
-logger.setLevel(logging.INFO)
-consolehandler.setLevel(logging.INFO)
-fileHandler.setLevel(logging.INFO)
 
 
 def desktop_login(number):
@@ -58,25 +48,22 @@ def code(number):
 
 
 def auto(country):
-    sim = OnlineSim()
-    tzid = sim.get_number('telegram', country)
-    number = sim.state(tzid)['number']
-    print(number)
-    client = TelegramClient(number, API_ID, API_HASH)
-    try:
-        client.connect()
-        client.send_code_request(number, force_sms=True)
-        client.sign_up(sim.code(tzid), first_name=name)
-        client.disconnect()
-        desktop_login(number)
-    except PhoneNumberBannedError as e:
-        logging.exception(e)
-    except SessionPasswordNeededError as e:
-        logging.exception(e)
-    except FloodWaitError as e:
-        logging.exception(e)
-    except PhoneNumberInvalidError as e:
-        logging.exception(e)
+    while True:
+        sim = OnlineSim()
+        try:
+            tzid = sim.get_number('telegram', country)
+            number = sim.state(tzid)['number']
+            print(number)
+            client = TelegramClient(number, API_ID, API_HASH)
+            client.connect()
+            client.send_code_request(number, force_sms=True)
+            client.sign_up(sim.code(tzid), first_name=name)
+            client.disconnect()
+            desktop_login(number)
+        except Exception as e:
+            LOGGER.error(e)
+        finally:
+            sleep(3)
 
 
 def manual():
@@ -90,14 +77,8 @@ def manual():
         client.sign_up(code_input, first_name=name)
         client.disconnect()
         desktop_login(number)
-    except PhoneNumberBannedError as e:
-        logging.exception(e)
-    except SessionPasswordNeededError as e:
-        logging.exception(e)
-    except FloodWaitError as e:
-        logging.exception(e)
-    except PhoneNumberInvalidError as e:
-        logging.exception(e)
+    except Exception as e:
+        LOGGER.error(e)
 
 
 def get_code(request_id):
@@ -115,50 +96,49 @@ def get_code(request_id):
 
 
 def sms_man(country):
-    get_number_json = sms_man_api.get_number(country, 3)
-    try:
-        print(get_number_json['get_number_json'])
-        return False
-    except KeyError:
-        pass
-    try:
-        request_id = get_number_json['request_id']
-    except KeyError as error:
-        logger.warning(error)
-        return False
-    number = '+' + get_number_json['number']
-    print(number)
-    client = TelegramClient(number, API_ID, API_HASH)
-    try:
-        client.connect()
-        client.send_code_request(number, force_sms=True)
-        if not get_code(request_id):
+    while True:
+        get_number_list = sms_man_api.get_number(country, 'tg')
+        if get_number_list[0] == 'NO_NUMBERS':
+            print(get_number_list[0])
+            continue
+        if get_number_list[0] == 'NO_BALANCE':
+            print(get_number_list[0])
             return False
-        client.sign_up(get_code(request_id), first_name=name)
-        client.disconnect()
-        desktop_login(number)
-    except PhoneNumberBannedError as e:
-        logger.info(e, exc_info=True)
-    except SessionPasswordNeededError as e:
-        logger.info(e, exc_info=True)
-    except FloodWaitError as e:
-        logger.info(e, exc_info=True)
-    except PhoneNumberInvalidError as e:
-        logger.info(e, exc_info=True)
+        if get_number_list[0] == 'BAD_KEY':
+            print('НЕВЕРНЫЙ КЛЮЧ АПИ')
+            return False
+        try:
+            request_id = get_number_list[1]
+        except KeyError as error:
+            LOGGER.info('Нет доступных номеров')
+            return False
+        number = '+' + get_number_list[2]
+        print(number)
+        client = TelegramClient(number, API_ID, API_HASH)
+        try:
+            client.connect()
+            client.send_code_request(number, force_sms=True)
+            if not get_code(request_id):
+                return False
+            client.sign_up(get_code(request_id), first_name=name)
+            client.disconnect()
+            desktop_login(number)
+        except Exception as e:
+            LOGGER.error(e)
+
+
+def main():
+    user_input = input('Choose service\n1 - SmsMan\n2 - OnlineSim\n3 - Manual\n=>')
+    if user_input == '1':
+        sms_man(config['sms_man']['sms_man_country'])
+    elif user_input == '2':
+        auto(config['online_sim']['country'])
+    elif user_input == '3':
+        manual()
+    else:
+        print('Wrong!')
 
 
 if __name__ == '__main__':
-    user_input = input('Choice service\nSmsMan - 1\nOnlineSim - 2\n=>')
-    # elif user_input == '2':
-    #     manual()
-    if user_input == '1':
-        while True:
-            sms_man(config['sms_man']['sms_man_country'])
-    elif user_input == '2':
-        while True:
-            auto(config['online_sim']['country'])
-    else:
-        print('Wrong!')
-        sleep(5)
-
-    # code('+62083803612232')
+    while True:
+        main()

@@ -2,11 +2,12 @@ import logging
 from configparser import ConfigParser
 
 from onlinesimru import GetUser, GetNumbers
-
+from logger import logger
 
 config = ConfigParser()
 config.read("config.ini")
 onlineSim_token = config['online_sim']['onlineSim_token']  # todo
+LOGGER = logger('tg_reg', file='onlinesim.log')
 
 
 class OnlineSim:
@@ -15,47 +16,28 @@ class OnlineSim:
         self.user = GetUser(onlineSim_token)
 
     def balance(self):
-        while True:
-            try:
-                return self.user.balance()["balance"]
-            except Exception as e:
-                logging.exception(e)
+        return self.user.balance()["balance"]
 
     def numbers(self):
-        while True:
-            try:
-                return self.sim.state()
-            except Exception as e:
-                logging.exception(e)
+        return self.sim.state()
 
     def get_number(self, service, country):
-        while True:
-            try:
-                return self.sim.get(service, country=country)
-            except Exception as e:
-                logging.exception(e)
+        return self.sim.get(service, country=country)
 
     def code(self, tzid):
         while True:
             print("Ждем код с OnlineSim")
             try:
                 return self.sim.wait_code(tzid, 1)
-            except Exception as e:
-                logging.exception(e)
+            except Exception as error:
+                LOGGER.error(error)
+                continue
 
     def state(self, tzid):
-        while True:
-            try:
-                return self.sim.stateOne(tzid)
-            except Exception as e:
-                logging.exception(e)
+        return self.sim.stateOne(tzid)
 
     def tariffs1(self, ):
-        while True:
-            try:
-                return self.sim.tariffs()
-            except Exception as e:
-                logging.exception(e)
+        return self.sim.tariffs()
 
 
 if __name__ == '__main__':
