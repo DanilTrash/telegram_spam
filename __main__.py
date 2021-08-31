@@ -3,83 +3,60 @@ from configparser import ConfigParser
 from time import sleep
 
 import pandas as pd
-from schedule import every, run_pending
 from telethon.errors.rpcerrorlist import *
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
-import logging
+
+from logger import logger
+
+LOGGER = logger('main')
 
 
 def main():
-    config = ConfigParser()
-    config.read("config.ini")
     for group in pd.read_excel("Telegram.xlsx", sheet_name="группы")['группы'].dropna().tolist():
         df = pd.read_excel("Telegram.xlsx", "реклама", dtype={'text': str, 'number of account': str})[::-1]
         text = df['text'].tolist()
         numbers = df["number of account"].tolist()
-        for i, number in enumerate(numbers, start=0):
-            if type(number) != float:
-                print('\n' + number)
-                client = TelegramClient(f'+{number}', int(config["config"]["api_id"]), config["config"]["api_hash"])
+        for i, number in enumerate(numbers):
+            if type(number) == float:
+                continue
+            print(f'\n+{number}')
+            client = TelegramClient(f'+{number}', int(config["telegram"]["tg_api_id"]), config["telegram"]["tg_api_hash"])
+            try:
+                client.start(f"+{number}")
+            except Exception as error:
+                LOGGER.error(error)
+                continue
+            with client:
+                print(group)
                 try:
-                    client.start(f"+{number}")
+                    client(JoinChannelRequest(channel=group))
                 except Exception as e:
-                    logger.warning(e, exc_info=True)
+                    LOGGER.error(e)
+                    continue
+                if type(text[i]) == float:
                     continue
                 try:
-                    with client:
-                        print(group)
-                        try:
-                            client(JoinChannelRequest(channel=group))
-                        except (FloodWaitError,
-                                UsernameNotOccupiedError,
-                                ChannelPrivateError,
-                                ValueError) as e:
-                            logger.info(e)
-                            continue
-                        if type(text[i]) != float:
-                            try:
-                                client.send_message(group, text[i])
-                            except UserBannedInChannelError as e:
-                                logger.info(e)
-                                client.send_message('SpamBot', r'/start')
-                                client.send_message('SpamBot', r'I was wrong, please release me now')
-                                continue
-                            except (ChatWriteForbiddenError,
-                                    ChannelPrivateError,
-                                    SlowModeWaitError,
-                                    ChatAdminRequiredError,
-                                    FloodWaitError) as e:
-                                logger.info(e)
-                                continue
-                except (PhoneNumberBannedError,
-                        UserDeactivatedBanError,
-                        ConnectionError) as e:
-                    print(e)
+                    client.send_message(group, text[i])
+                except UserBannedInChannelError as e:
+                    LOGGER.info(e)
+                    client.send_message('SpamBot', r'/start')
+                    client.send_message('SpamBot', r'I was wrong, please release me now')
+                    continue
+                except Exception as e:
+                    LOGGER.info(e)
                     continue
 
 
-logger = logging.getLogger('main')
-logger.setLevel(logging.INFO)
-
-consoleHandler = logging.StreamHandler()
-consoleHandler.setLevel(logging.INFO)
-
-fileHandler = logging.FileHandler('log.log', 'w')
-fileHandler.setLevel(logging.WARNING)
-formatter = logging.Formatter('%(asctime)s  %(name)s  %(levelname)s: %(message)s')
-fileHandler.setFormatter(formatter)
-
-logger.addHandler(fileHandler)
-logger.addHandler(consoleHandler)
-
-try:
-    if __name__ == '__main__':
-        t = 80
-        main()
-        every(t).minutes.do(main)
-        while True:
-            sleep(1)
-            run_pending()
-except Exception as e:
-    logger.critical(e, exc_info=True)
+if __name__ == '__main__':
+    while True:
+        config = ConfigParser()
+        config.read("config.ini")
+        timer = int(config['telegram']['timer'])
+        try:
+            main()
+        except Exception as error:
+            LOGGER.exception(error)
+        time = datetime.datetime.now() + datetime.timedelta(minutes=timer)
+        LOGGER.info(f'Спам запустится в {time.strftime("%H:%M")}')
+        sleep(timer * 60)

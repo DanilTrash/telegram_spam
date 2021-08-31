@@ -1,14 +1,18 @@
 import logging
+from configparser import ConfigParser
 
 from onlinesimru import GetUser, GetNumbers
-from onlinesimru.Extentions import RequestException
+
+
+config = ConfigParser()
+config.read("config.ini")
+onlineSim_token = config['online_sim']['onlineSim_token']  # todo
 
 
 class OnlineSim:
     def __init__(self):
-        self.token = "76d8377e27690ecbe2153174c22104eb"
-        self.sim = GetNumbers(self.token)
-        self.user = GetUser(self.token)
+        self.sim = GetNumbers(onlineSim_token)
+        self.user = GetUser(onlineSim_token)
 
     def balance(self):
         while True:

@@ -1,4 +1,5 @@
 import logging
+import os
 from configparser import ConfigParser
 from os import rename, startfile, getcwd
 from random import choice
@@ -11,7 +12,7 @@ from onlinesim_api import OnlineSim
 import sms_man_api
 
 config = ConfigParser()
-config.read("config.ini")
+config.read(f"config.ini")
 API_ID = int(config["config"]["api_id"])
 API_HASH = config["config"]["api_hash"]
 
