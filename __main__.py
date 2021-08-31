@@ -21,9 +21,18 @@ def main():
             if type(number) == float:
                 continue
             print(f'\n+{number}')
-            client = TelegramClient(f'+{number}', int(config["telegram"]["tg_api_id"]), config["telegram"]["tg_api_hash"])
+            client = TelegramClient(f'+{number}',
+                                    int(config["telegram"]["tg_api_id"]),
+                                    config["telegram"]["tg_api_hash"],
+                                    )
             try:
-                client.start(f"+{number}")
+                if config['telegram']['skip_tg']:
+                    client.start(f'+{number}', code_callback=lambda d: False)
+                else:
+                    client.start(f'+{number}')
+            except TypeError:
+                LOGGER.warning(f'telegram +{number} unauthorized')
+                continue
             except Exception as error:
                 LOGGER.error(error)
                 continue
