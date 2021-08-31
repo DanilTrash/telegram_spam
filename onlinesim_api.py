@@ -7,7 +7,7 @@ from logger import logger
 config = ConfigParser()
 config.read("config.ini")
 onlineSim_token = config['online_sim']['onlineSim_token']  # todo
-LOGGER = logger('tg_reg', file='onlinesim.log')
+LOGGER = logger('tg_reg', file='tg_reg.log')
 
 
 class OnlineSim:

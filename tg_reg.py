@@ -1,4 +1,5 @@
 import logging
+import os
 from configparser import ConfigParser
 from os import rename, startfile
 from random import choice
@@ -11,12 +12,7 @@ from onlinesim_api import OnlineSim
 import sms_man_api
 from logger import logger
 
-config = ConfigParser()
-config.read(f"config.ini")
-API_ID = int(config["telegram"]["tg_api_id"])
-API_HASH = config["telegram"]["tg_api_hash"]
 LOGGER = logger('tg_reg', file='tg_reg.log')
-name = str(choice(open('names').read().splitlines()))
 
 
 def desktop_login(number):
@@ -140,5 +136,15 @@ def main():
 
 
 if __name__ == '__main__':
-    while True:
-        main()
+    try:
+        config = ConfigParser()
+        config.read(f"config.ini")
+        API_ID = int(config["telegram"]["tg_api_id"])
+        API_HASH = config["telegram"]["tg_api_hash"]
+        name = str(choice(open('names.txt').read().splitlines()))
+        if not os.path.exists('телеграммы'):
+            os.mkdir('телеграммы')
+        while True:
+                main()
+    except Exception as error:
+        LOGGER.exception(error)
