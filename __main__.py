@@ -21,12 +21,13 @@ def main():
             if type(number) == float:
                 continue
             print(f'\n+{number}')
+            print(group)
             client = TelegramClient(f'+{number}',
                                     int(config["telegram"]["tg_api_id"]),
                                     config["telegram"]["tg_api_hash"],
                                     )
             try:
-                if config['telegram']['skip_tg']:
+                if config['telegram']['skip_unauthorized'] == '1':
                     client.start(f'+{number}', code_callback=lambda d: False)
                 else:
                     client.start(f'+{number}')
@@ -37,8 +38,7 @@ def main():
                 LOGGER.error(error)
                 continue
             with client:
-                print(group)
-                if config['telegram']['join_group']:
+                if config['telegram']['join_group'] == '1':
                     try:
                         client(JoinChannelRequest(channel=group))
                     except Exception as e:
