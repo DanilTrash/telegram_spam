@@ -22,17 +22,15 @@ def main():
                 continue
             print(f'+{number}')
             print(group)
-            client = TelegramClient(f'+{number}',
-                                    int(config["telegram"]["tg_api_id"]),
-                                    config["telegram"]["tg_api_hash"],
-                                    )
+            client = TelegramClient(f'+{number}', int(config["telegram"]["tg_api_id"]),
+                                    config["telegram"]["tg_api_hash"])
             try:
                 if config['telegram']['skip_unauthorized'] == '1':
                     client.start(f'+{number}', code_callback=lambda d: False)
                 else:
                     client.start(f'+{number}')
             except TypeError:
-                LOGGER.warning(f'telegram +{number} unauthorized')
+                LOGGER.error(f'telegram +{number} unauthorized')
                 continue
             except Exception as error:
                 LOGGER.error(error)
@@ -52,13 +50,13 @@ def main():
                 client.send_message(group, text[i])
                 client.disconnect()
             except UserBannedInChannelError as e:
-                LOGGER.info(e)
+                LOGGER.error(e)
                 client.send_message('SpamBot', r'/start')
                 client.send_message('SpamBot', r'I was wrong, please release me now')
                 client.disconnect()
                 continue
             except Exception as e:
-                LOGGER.info(e)
+                LOGGER.error(e)
                 client.disconnect()
                 continue
 
@@ -67,11 +65,11 @@ if __name__ == '__main__':
     while True:
         config = ConfigParser()
         config.read("config.ini")
-        timer = int(config['telegram']['timer'])
         try:
             main()
         except Exception as error:
             LOGGER.exception(error)
+        timer = int(config['telegram']['timer'])
         time = datetime.datetime.now() + datetime.timedelta(minutes=timer)
         LOGGER.info(f'Спам запустится в {time.strftime("%H:%M")}')
         sleep(timer * 60)
