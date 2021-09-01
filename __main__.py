@@ -20,7 +20,7 @@ def main():
         for i, number in enumerate(numbers):
             if type(number) == float:
                 continue
-            print(f'\n+{number}')
+            print(f'+{number}')
             print(group)
             client = TelegramClient(f'+{number}',
                                     int(config["telegram"]["tg_api_id"]),
