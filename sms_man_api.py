@@ -46,4 +46,4 @@ def applications():
 
 
 if __name__ == '__main__':
-    print(get_number(1, 'tg'))
+    print(get_number(config['sms_man']['country'], config['sms_man']['service']))

@@ -43,11 +43,11 @@ def code(number):
         print(e)
 
 
-def auto(country):
+def auto(country, service='telegram'):
     while True:
         sim = OnlineSim()
         try:
-            tzid = sim.get_number('telegram', country)
+            tzid = sim.get_number(service, country)
             number = sim.state(tzid)['number']
             print(number)
             client = TelegramClient(number, API_ID, API_HASH)
@@ -91,9 +91,9 @@ def get_code(request_id):
     return False
 
 
-def sms_man(country):
+def sms_man(country, service='tg'):
     while True:
-        get_number_list = sms_man_api.get_number(country, 'tg')
+        get_number_list = sms_man_api.get_number(country, service)
         if get_number_list[0] == 'NO_NUMBERS':
             print(get_number_list[0])
             continue
@@ -126,7 +126,7 @@ def sms_man(country):
 def main():
     user_input = input('Choose service\n1 - SmsMan\n2 - OnlineSim\n3 - Manual\n=>')
     if user_input == '1':
-        sms_man(config['sms_man']['sms_man_country'])
+        sms_man(config['sms_man']['country'])
     elif user_input == '2':
         auto(config['online_sim']['country'])
     elif user_input == '3':

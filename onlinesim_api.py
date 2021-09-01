@@ -1,12 +1,14 @@
-import logging
 from configparser import ConfigParser
+from time import sleep
 
 from onlinesimru import GetUser, GetNumbers
+from onlinesimru.Extentions import RequestException
+
 from logger import logger
 
 config = ConfigParser()
 config.read("config.ini")
-onlineSim_token = config['online_sim']['onlineSim_token']  # todo
+onlineSim_token = config['online_sim']['onlineSim_token']
 LOGGER = logger('tg_reg', file='tg_reg.log')
 
 
@@ -41,17 +43,22 @@ class OnlineSim:
 
 
 if __name__ == '__main__':
-    service = input("сервис: ")
-    country = input("country: ")
-    sim = OnlineSim()
-    tzid = sim.get_number(service, country)
-    print(sim.state(tzid)['number'])
-    while True:
-        try:
-            print(sim.state(tzid)['msg'][0]['msg'])
-            break
-        except KeyError as error:
-            pass
-        except Exception as error:
-            logging.exception(error)
-            break
+    try:
+        service = config['online_sim']['service']
+        country = config['online_sim']['country']
+        sim = OnlineSim()
+        tzid = sim.get_number(service, country)
+        print(sim.state(tzid).get('number'))
+        while True:
+            try:
+                number_state = sim.state(tzid)
+                print(number_state.get('msg', 'No msg yet'))
+                if type(number_state) is list:
+                    number_state[0].get('msg')
+                sleep(2)
+            except RequestException as error:
+                LOGGER.warning(error)
+                sleep(15)
+    except Exception as error:
+        LOGGER.exception(error)
+        breakpoint()
