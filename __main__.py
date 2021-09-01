@@ -37,25 +37,30 @@ def main():
             except Exception as error:
                 LOGGER.error(error)
                 continue
-            with client:
-                if config['telegram']['join_group'] == '1':
-                    try:
-                        client(JoinChannelRequest(channel=group))
-                    except Exception as e:
-                        LOGGER.error(e)
-                        continue
-                if type(text[i]) == float:
-                    continue
+            client.connect()
+            if config['telegram']['join_group'] == '1':
                 try:
-                    client.send_message(group, text[i])
-                except UserBannedInChannelError as e:
-                    LOGGER.info(e)
-                    client.send_message('SpamBot', r'/start')
-                    client.send_message('SpamBot', r'I was wrong, please release me now')
-                    continue
+                    client(JoinChannelRequest(channel=group))
                 except Exception as e:
-                    LOGGER.info(e)
+                    LOGGER.error(e)
+                    client.disconnect()
                     continue
+            if type(text[i]) == float:
+                client.disconnect()
+                continue
+            try:
+                client.send_message(group, text[i])
+                client.disconnect()
+            except UserBannedInChannelError as e:
+                LOGGER.info(e)
+                client.send_message('SpamBot', r'/start')
+                client.send_message('SpamBot', r'I was wrong, please release me now')
+                client.disconnect()
+                continue
+            except Exception as e:
+                LOGGER.info(e)
+                client.disconnect()
+                continue
 
 
 if __name__ == '__main__':
