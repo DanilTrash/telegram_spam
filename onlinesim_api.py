@@ -53,8 +53,6 @@ if __name__ == '__main__':
             try:
                 number_state = sim.state(tzid)
                 print(number_state.get('msg', 'No msg yet'))
-                if type(number_state) is list:
-                    number_state[0].get('msg')
                 sleep(2)
             except RequestException as error:
                 LOGGER.warning(error)

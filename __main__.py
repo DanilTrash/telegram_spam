@@ -38,11 +38,12 @@ def main():
                 continue
             with client:
                 print(group)
-                try:
-                    client(JoinChannelRequest(channel=group))
-                except Exception as e:
-                    LOGGER.error(e)
-                    continue
+                if config['telegram']['join_group']:
+                    try:
+                        client(JoinChannelRequest(channel=group))
+                    except Exception as e:
+                        LOGGER.error(e)
+                        continue
                 if type(text[i]) == float:
                     continue
                 try:
