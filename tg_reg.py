@@ -1,4 +1,3 @@
-import logging
 import os
 from configparser import ConfigParser
 from os import rename, startfile
@@ -53,6 +52,7 @@ def auto(country, service='telegram'):
             client = TelegramClient(number, API_ID, API_HASH)
             client.connect()
             client.send_code_request(number, force_sms=True)
+            name = str(choice(open('names.txt').read().splitlines()))
             client.sign_up(sim.code(tzid), first_name=name)
             client.disconnect()
             desktop_login(number)
@@ -70,6 +70,7 @@ def manual():
         client.connect()
         client.send_code_request(number, force_sms=True)
         code_input = input('Enter the code: ')
+        name = str(choice(open('names.txt').read().splitlines()))
         client.sign_up(code_input, first_name=name)
         client.disconnect()
         desktop_login(number)
@@ -117,6 +118,7 @@ def sms_man(country, service='tg'):
             client.send_code_request(number, force_sms=True)
             if not get_code(request_id):
                 return False
+            name = str(choice(open('names.txt').read().splitlines()))
             client.sign_up(get_code(request_id), first_name=name)
             client.disconnect()
             desktop_login(number)
@@ -142,7 +144,7 @@ if __name__ == '__main__':
         config.read(f"config.ini")
         API_ID = int(config["telegram"]["tg_api_id"])
         API_HASH = config["telegram"]["tg_api_hash"]
-        name = str(choice(open('names.txt').read().splitlines()))
+
         if not os.path.exists('телеграммы'):
             os.mkdir('телеграммы')
         while True:
