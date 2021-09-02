@@ -92,6 +92,7 @@ def get_code(request_id):
 
 
 def sms_man(country, service='tg'):
+    print(sms_man_api.countries()[int(country)].get('name'), sms_man_api.limits(country).get(service))
     while True:
         get_number_list = sms_man_api.get_number(country, service)
         if get_number_list[0] == 'NO_NUMBERS':
@@ -105,7 +106,7 @@ def sms_man(country, service='tg'):
             return False
         try:
             request_id = get_number_list[1]
-        except KeyError as error:
+        except KeyError:
             LOGGER.info('Нет доступных номеров')
             return False
         number = '+' + get_number_list[2]
@@ -124,7 +125,7 @@ def sms_man(country, service='tg'):
 
 
 def main():
-    user_input = input('Choose service\n1 - SmsMan\n2 - OnlineSim\n3 - Manual\n=>')
+    user_input = input('Choose service\n1 - SmsMan\n2 - OnlineSim\n3 - Manual\n>>> ')
     if user_input == '1':
         sms_man(config['sms_man']['country'])
     elif user_input == '2':

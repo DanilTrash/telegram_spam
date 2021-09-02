@@ -8,16 +8,22 @@ smsman_token = config['sms_man']['sms_man_token']
 URL = 'http://api.sms-man.ru/control'
 
 
+# def countries():
+#     data = {
+#         '$api_key': smsman_token,
+#     }
+#     return requests.get(f'http://api.sms-man.ru/stubs/handler_api.php?action=getCountries', data=data)
+#
+
 def balance():
     return requests.get(f'{URL}/get-balance?token={smsman_token}').json().get('balance')
 
 
-def limits(country_id, application_id):
+def limits(country_id):
     return requests.get(f'http://api.sms-man.ru/stubs/handler_api.php?'
                         f'action=getPrices'
                         f'&api_key={smsman_token}'
-                        f'&country={country_id}'
-                        f'&service={application_id}').json()
+                        f'&country={country_id}').json()
     # return requests.get(f'{URL}/limits?token={smsman_token}&country_id=${country_id}&application_id=${application_id}')
 
 
@@ -38,12 +44,8 @@ def set_status(request_id, status):
 
 
 def countries():
-    return requests.get(f'{URL}/countries?token={smsman_token}').json()
+    return requests.get(f'http://api.sms-man.ru/stubs/handler_api.php?action=getCountries&api_key={smsman_token}').json()
 
 
 def applications():
     return requests.get(f'{URL}/applications?token={smsman_token}').json()
-
-
-if __name__ == '__main__':
-    print(get_number(config['sms_man']['country'], config['sms_man']['service']))
