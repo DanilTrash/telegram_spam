@@ -4,7 +4,7 @@ from time import sleep
 
 import pandas as pd
 from telethon.errors.rpcerrorlist import *
-from telethon.sync import TelegramClient
+from telethon import TelegramClient, sync
 from telethon.tl.functions.channels import JoinChannelRequest
 
 from logger import logger
@@ -32,14 +32,14 @@ def main():
             except TypeError:
                 LOGGER.error(f'telegram +{number} unauthorized')
                 continue
-            except Exception as error:
+            except Exception as error:  # fix bare exception
                 LOGGER.error(error)
                 continue
             client.connect()
             if config['telegram']['join_group'] == '1':
                 try:
                     client(JoinChannelRequest(channel=group))
-                except Exception as e:
+                except Exception as e:  # fix bare exception
                     LOGGER.error(e)
                     client.disconnect()
                     continue
@@ -55,7 +55,7 @@ def main():
                 client.send_message('SpamBot', r'I was wrong, please release me now')
                 client.disconnect()
                 continue
-            except Exception as e:
+            except Exception as e:  # fix bare exception
                 LOGGER.error(e)
                 client.disconnect()
                 continue

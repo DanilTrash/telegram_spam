@@ -144,7 +144,6 @@ if __name__ == '__main__':
         config.read(f"config.ini")
         API_ID = int(config["telegram"]["tg_api_id"])
         API_HASH = config["telegram"]["tg_api_hash"]
-
         if not os.path.exists('телеграммы'):
             os.mkdir('телеграммы')
         while True:
