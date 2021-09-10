@@ -24,17 +24,12 @@ def main():
             print(group)
             client = TelegramClient(f'+{number}', int(config["telegram"]["tg_api_id"]),
                                     config["telegram"]["tg_api_hash"])
-            try:
-                if config['telegram']['skip_unauthorized'] == '1':
-                    client.start(f'+{number}', code_callback=lambda d: False)
-                else:
+            if config['telegram']['skip_unauthorized'] == '0':
+                try:
                     client.start(f'+{number}')
-            except TypeError:
-                LOGGER.error(f'telegram +{number} unauthorized')
-                continue
-            except Exception as error:  # fix bare exception
-                LOGGER.error(error)
-                continue
+                except Exception as error:
+                    LOGGER.error(error)
+                    continue
             client.connect()
             if config['telegram']['join_group'] == '1':
                 try:
