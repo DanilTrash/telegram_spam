@@ -12,12 +12,14 @@ from logger import logger
 LOGGER = logger('main')
 
 
+def dataframe():
+    return pd.read_excel("Telegram.xlsx", "реклама", dtype={'text': str, 'number of account': str})[::-1]
+
+
 def main():
-    for group in pd.read_excel("Telegram.xlsx", sheet_name="группы")['группы'].dropna().tolist():
-        df = pd.read_excel("Telegram.xlsx", "реклама", dtype={'text': str, 'number of account': str})[::-1]
-        text = df['text'].tolist()
-        numbers = df["number of account"].tolist()
-        for i, number in enumerate(numbers):
+    numbers = dataframe()["number of account"].tolist()
+    for i, number in enumerate(numbers):
+        for group in pd.read_excel("Telegram.xlsx", sheet_name="группы")['группы'].dropna().tolist():
             if type(number) == float:
                 continue
             print(f'+{number}')
@@ -34,23 +36,20 @@ def main():
             if config['telegram']['join_group'] == '1':
                 try:
                     client(JoinChannelRequest(channel=group))
-                except Exception as e:  # fix bare exception
+                except Exception as e:
                     LOGGER.error(e)
                     client.disconnect()
                     continue
+            text = dataframe()['text'].tolist()
             if type(text[i]) == float:
                 client.disconnect()
                 continue
             try:
                 client.send_message(group, text[i])
+                timer_btw_tg = int(config['telegram']['timer_btw_tg'])
+                sleep(timer_btw_tg)
                 client.disconnect()
-            except UserBannedInChannelError as e:
-                LOGGER.error(e)
-                client.send_message('SpamBot', r'/start')
-                client.send_message('SpamBot', r'I was wrong, please release me now')
-                client.disconnect()
-                continue
-            except Exception as e:  # fix bare exception
+            except Exception as e:
                 LOGGER.error(e)
                 client.disconnect()
                 continue

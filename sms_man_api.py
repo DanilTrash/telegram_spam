@@ -8,12 +8,10 @@ smsman_token = config['sms_man']['sms_man_token']
 URL = 'http://api.sms-man.ru/control'
 
 
-# def countries():
-#     data = {
-#         '$api_key': smsman_token,
-#     }
-#     return requests.get(f'http://api.sms-man.ru/stubs/handler_api.php?action=getCountries', data=data)
-#
+def countries():
+    return requests.get(f'http://api.sms-man.ru/stubs/handler_api.php?action=getCountries&api_key={smsman_token}').json()
+    # return requests.get(f'http://api.sms-man.ru/control/countries?token={smsman_token}').json()
+
 
 def balance():
     return requests.get(f'{URL}/get-balance?token={smsman_token}').json().get('balance')
@@ -41,10 +39,6 @@ def get_sms(request_id):
 
 def set_status(request_id, status):
     return requests.get(f'{URL}/set-status?token={smsman_token}&request_id={request_id}&status={status}').json()
-
-
-def countries():
-    return requests.get(f'http://api.sms-man.ru/stubs/handler_api.php?action=getCountries&api_key={smsman_token}').json()
 
 
 def applications():

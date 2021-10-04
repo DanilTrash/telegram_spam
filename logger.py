@@ -12,4 +12,5 @@ def logger(name, mode='w', file='log.log'):
     fileHandler.setLevel(logging.INFO)
     fileHandler.setFormatter(formatter)
     logger.addHandler(fileHandler)
+    logger.info('version: ')
     return logger

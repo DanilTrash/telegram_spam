@@ -11,15 +11,14 @@ from onlinesim_api import OnlineSim
 import sms_man_api
 from logger import logger
 
-LOGGER = logger('tg_reg', file='tg_reg.log')
+LOGGER = logger(__file__, file='tg_reg.log')
 
 
 def desktop_login(number):
     print('downloading telegram')
-    f = open(rf"telegrams\telegram.zip", "wb")
-    ufr = get(r"https://updates.tdesktop.com/tx64/tportable-x64.2.8.1.zip")
-    f.write(ufr.content)
-    f.close()
+    with open(rf"telegrams\telegram.zip", "wb") as f:
+        ufr = get(r"https://updates.tdesktop.com/tx64/tportable-x64.2.8.1.zip")
+        f.write(ufr.content)
     with ZipFile(r"telegrams\telegram.zip", 'r') as zip_ref:
         zip_ref.extractall(rf"telegrams")
     rename(rf"telegrams\Telegram",
@@ -51,7 +50,10 @@ def auto(country, service='telegram'):
             client.connect()
             client.send_code_request(number, force_sms=True)
             name = str(choice(open('names.txt').read().splitlines()))
-            client.sign_up(sim.code(tzid), first_name=name)
+            code = sim.code(tzid)
+            if not code:
+                continue
+            client.sign_up(code, first_name=name)
             client.disconnect()
             desktop_login(number)
         except Exception as e:
@@ -91,7 +93,6 @@ def get_code(request_id):
 
 
 def sms_man(country, service='tg'):
-    LOGGER.info(sms_man_api.countries()[int(country)].get('name'), sms_man_api.limits(country).get(service))
     while True:
         get_number_list = sms_man_api.get_number(country, service)
         if get_number_list[0] == 'NO_NUMBERS':

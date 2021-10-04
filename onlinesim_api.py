@@ -27,13 +27,14 @@ class OnlineSim:
         return self.sim.get(service, country=country)
 
     def code(self, tzid):
-        while True:
+        for _ in range(15):
             print("Ждем код с OnlineSim")
             try:
                 return self.sim.wait_code(tzid, 1)
             except Exception as error:
                 LOGGER.error(error)
                 continue
+        return False
 
     def state(self, tzid):
         return self.sim.stateOne(tzid)
