@@ -1,10 +1,10 @@
 import logging
 
-from accountregistration import AccountRegistration
-from addcontacts import AddContacts
-from invitetogroup import InviteToGroup
-from spamtoclients import SpamToClients
-from spamtogroups import SpamToGroups
+from spammer.methods.accountregistration import AccountRegistration
+from spammer.methods.addcontacts import AddContacts
+from spammer.methods.invitetogroup import InviteToGroup
+from spammer.methods.spamtoclients import SpamToClients
+from spammer.methods.spamtogroups import SpamToGroups
 
 
 class MainMenu:

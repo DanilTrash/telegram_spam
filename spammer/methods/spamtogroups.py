@@ -1,8 +1,8 @@
 import logging
 from time import sleep
 
-from database import Data
-from telegram import Telegram
+from spammer.database import Data
+from spammer.telegram import Telegram
 
 
 class SpamToGroups:
@@ -24,6 +24,7 @@ class SpamModel(SpamToGroups):
         self.authorise = bool(int(self.options('authorise')[0]))
         self.join_group = bool(int(self.options('join_group')[0]))
         self.timer_btw_acc = int(self.options('timer_btw_acc')[0])
+        self.mention = bool(int(self.options('mention_group_members')[0]))
         self.timer = int(self.options('timer')[0])
         self.spam_data = Data('рассылка в группы')
         self.groups = self.spam_data('группы').dropna().tolist()
@@ -37,7 +38,14 @@ class SpamModel(SpamToGroups):
             try:
                 with Telegram(account, self.authorise, self.proxy[index]) as telegram:
                     for group in self.groups:
-                        telegram.send_to_group(self.messages[index], group, self.join_group)
+                        print(group)
+                        if self.join_group:
+                            if not telegram.add_group(group):
+                                continue
+                        if self.mention:
+                            telegram.send_message_with_mentions(group, self.messages[index])
+                        else:
+                            telegram.send_message(self.messages[index], group)
             except Exception as error:
                 logging.exception(error)
             sleep(self.timer_btw_acc)

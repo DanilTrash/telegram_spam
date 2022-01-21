@@ -1,8 +1,8 @@
 from itertools import cycle
 from time import sleep
 
-from database import Data
-from telegram import Telegram
+from spammer.database import Data
+from spammer.telegram import Telegram
 
 
 class SpamToClients:

@@ -7,15 +7,17 @@ from zipfile import ZipFile
 
 import requests
 
-from database import Data
-from services import OnlineSimApi, SmsManApi
-from telegram import Telegram
+from spammer.database import Data
+from spammer.services import OnlineSimApi, SmsManApi
+from spammer.telegram import Telegram
 
 
 class Service:
     data = Data('настройки')
     account_name = data('registration_names').dropna().tolist()
     proxy = data('proxy').dropna().tolist()
+    if len(proxy) == 0:
+        proxy = [None]
 
     @staticmethod
     def download_telegram():
@@ -119,8 +121,8 @@ class AccountRegistration:
     name = 'Account Registration'
 
     apis = [
-        OnlineSimService(),
-        SmsManService(),
+        OnlineSimService,
+        SmsManService,
     ]
 
     def __init__(self) -> None:
@@ -133,11 +135,11 @@ class AccountRegistration:
     def __call__(self) -> None:
         while self.amount > 0:
             try:
-                service = self.apis[self.user_input - 1]
+                service = self.apis[self.user_input - 1]()
                 if service():
                     self.amount -= 1
             except Exception as error:
-                logging.error(error)
+                logging.exception(error)
 
 
 if __name__ == '__main__':
