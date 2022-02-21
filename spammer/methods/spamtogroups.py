@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 from time import sleep
 
 from spammer.database import Data
@@ -10,16 +11,18 @@ class SpamToGroups:
 
     def __call__(self):
         while True:
+            print(self.name)
+            start = datetime.now()
             spam = SpamModel()
             spam()
-            print(f'sleeping for {spam.timer} seconds')
+            end = start + timedelta(seconds=spam.timer)
+            print('спам начнется в {}'.format(end.strftime("%H:%M:%S")))
             sleep(spam.timer)
 
 
-class SpamModel(SpamToGroups):
+class SpamModel:
 
     def __init__(self):
-        print(self.name)
         self.options = Data('настройки')
         self.authorise = bool(int(self.options('authorise')[0]))
         self.join_group = bool(int(self.options('join_group')[0]))
@@ -33,7 +36,6 @@ class SpamModel(SpamToGroups):
         self.proxy = self.spam_data('proxy').fillna('').tolist()
 
     def __call__(self, *args, **kwargs):
-        print('spamming')
         for index, account in enumerate(self.accounts):
             try:
                 with Telegram(account, self.authorise, self.proxy[index]) as telegram:
@@ -42,16 +44,7 @@ class SpamModel(SpamToGroups):
                         if self.join_group:
                             if not telegram.add_group(group):
                                 continue
-                        if self.mention:
-                            telegram.send_message_with_mentions(group, self.messages[index])
-                        else:
-                            telegram.send_message(self.messages[index], group)
+                        telegram.send_message(self.messages[index], group)
             except Exception as error:
-                logging.exception(error)
+                logging.error(error)
             sleep(self.timer_btw_acc)
-        print('spam to groups ends')
-
-
-if __name__ == '__main__':
-    spam = SpamToGroups()
-    spam()

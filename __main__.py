@@ -1,9 +1,9 @@
 import logging
 
-from spammer.methods.accountregistration import AccountRegistration
-from spammer.methods.addcontacts import AddContacts
-from spammer.methods.invitetogroup import InviteToGroup
-from spammer.methods.spamtoclients import SpamToClients
+# from spammer.methods.accountregistration import AccountRegistration
+# from spammer.methods.addcontacts import AddContacts
+# from spammer.methods.invitetogroup import InviteToGroup
+# from spammer.methods.spamtoclients import SpamToClients
 from spammer.methods.spamtogroups import SpamToGroups
 
 
@@ -12,10 +12,10 @@ class MainMenu:
 
     methods = [
         SpamToGroups,
-        SpamToClients,
-        InviteToGroup,
-        AddContacts,
-        AccountRegistration,
+        # SpamToClients,
+        # InviteToGroup,
+        # AddContacts,
+        # AccountRegistration,
     ]
 
     def __init__(self):
@@ -25,8 +25,8 @@ class MainMenu:
         self.user_input = int(input('choose option: '))
 
     def __call__(self):
-        method = self.methods[self.user_input - 1]()
         try:
+            method = self.methods[self.user_input - 1]()
             method()
         except Exception as error:
             logging.exception(error)
@@ -34,10 +34,11 @@ class MainMenu:
 
 
 if __name__ == '__main__':
+    __version__ = '1.0.2'
+    print('version: %s' % __version__)
     while True:
         try:
             main_menu = MainMenu()
             main_menu()
-        except KeyboardInterrupt as interruption:
-            print(interruption)
-            print('Closing job')
+        except Exception as error:
+            logging.error(error)

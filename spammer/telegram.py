@@ -39,7 +39,6 @@ class Telegram:
         self.client.disconnect()
 
     def send_message(self, message, target):
-        print(target)
         try:
             result = self.client.send_message(target, message)
             logging.info('message sended to %s' % target)
@@ -68,12 +67,10 @@ class Telegram:
             return False
 
     def send_to_contact(self, message: str, target: str) -> None:
-        print(target)
         self.add_contact(target)
         self.send_message(message, target)
 
     def invite_to_group(self, target, group):
-        print(target)
         self.add_group(target)
         self.add_contact(target)
         try:
